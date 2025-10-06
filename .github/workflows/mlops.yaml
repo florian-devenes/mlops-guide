@@ -106,6 +106,13 @@ jobs:
             --image-tag ${{ secrets.GCP_CONTAINER_REGISTRY_HOST }}/celestial-bodies-classifier:${{ github.sha }}
           # Push the container to the Container Registry
           docker push --all-tags ${{ secrets.GCP_CONTAINER_REGISTRY_HOST }}/celestial-bodies-classifier
+      - name: Debug SA email (temporaire)
+        run: |
+          python - <<'PY'
+          import json, os
+          p=os.environ["GOOGLE_APPLICATION_CREDENTIALS"]
+          print("SA_EMAIL=", json.load(open(p))["client_email"])
+          PY
       - name: Get Google Cloud's Kubernetes credentials
         if: github.ref == 'refs/heads/main'
         uses: google-github-actions/get-gke-credentials@v2
