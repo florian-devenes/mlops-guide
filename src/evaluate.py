@@ -130,10 +130,13 @@ def main() -> None:
         labels = json.load(f)
 
     # Import the model to the model store from a local model folder
+    model_path = (model_folder / "celestial_bodies_classifier_model.bentomodel").resolve()
+    print(f"[DEBUG] evaluate model_path={model_path}")
     try:
-        bentoml.models.import_model(f"{model_folder}/celestial_bodies_classifier_model.bentomodel")
+        bentoml.models.import_model(str(model_path))
     except bentoml.exceptions.BentoMLException:
         print("Model already exists in the model store - skipping import.")
+
 
     # Load model
     model = bentoml.keras.load_model("celestial_bodies_classifier_model")
