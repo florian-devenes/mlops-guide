@@ -108,7 +108,7 @@ def main() -> None:
 
     # Save the model using BentoML to its model store
     # https://docs.bentoml.com/en/latest/reference/frameworks/keras.html#bentoml.keras.save_model
-    bentoml.keras.save_model(
+    saved = bentoml.keras.save_model(
         "celestial_bodies_classifier_model",
         model,
         include_optimizer=True,
@@ -118,11 +118,15 @@ def main() -> None:
         }
     )
 
-    # Export the model from the model store to the local model folder
-    bentoml.models.export_model(
-        "celestial_bodies_classifier_model:latest",
-        f"{model_folder}/celestial_bodies_classifier_model.bentomodel",
-    )
+    # Export du modèle vers le dossier fourni en CLI (ex: "model")
+    model_folder.mkdir(parents=True, exist_ok=True)
+    export_path = (model_folder / "celestial_bodies_classifier_model.bentomodel").resolve()
+    print(f"[DEBUG] model_folder={model_folder}  abs={model_folder.resolve()}")
+    print(f"[DEBUG] export_path={export_path}")
+
+    bentoml.models.export_model(saved.tag, str(export_path))
+    print(f"✅ Exported model to: {export_path}")
+
 
     # Save the model history
     np.save(model_folder / "history.npy", model.history.history)
