@@ -165,10 +165,18 @@ jobs:
           password: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_KEY }}
       - name: Import the BentoML model (idempotent)
         run: |
-          if bentoml models list | grep -q '^celestial_bodies_classifier_model'; then
-            echo "Model already in store, skipping import."
+          set -euo pipefail
+          # On tente l'import, on capte l'erreur si ça échoue
+          if bentoml models import model/celestial_bodies_classifier_model.bentomodel 2>import_err.log; then
+            echo "Model imported."
           else
-            bentoml models import model/celestial_bodies_classifier_model.bentomodel
+            if grep -qi "already exists" import_err.log; then
+              echo "Model already exists in the Bento store — skipping."
+            else
+              echo "Unexpected import error:"
+              cat import_err.log
+              exit 1
+            fi
           fi
       - name: Build the BentoML model artifact
         run: bentoml build src
